@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 export default async function Home() {
   const token = cookies().get("ecopass_conductor_token");
 
-  try {
+  if (token) {
     const resposne = await api.get("/get-assignedBus", {
       headers: {
         Cookie: `ecopass_conductor_token = ${token?.value}`,
@@ -18,14 +18,8 @@ export default async function Home() {
     } else {
       redirect("/login");
     }
-  } catch (error) {
-    console.log(error);
+  } else {
     redirect("/login");
-  }
-
-  if (!token) redirect("/login");
-  else {
-    // fetchConductorid();
   }
 
   return (

@@ -6,7 +6,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useToast } from "./ui/use-toast";
 import api from "@/helper/api";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 interface assginedBusProps {
   _id: string;
@@ -53,10 +53,29 @@ const StartJourneyChoice = ({ assingnedBusDetials }: any) => {
     }
   };
 
+  const handleResumeJourney = async () => {};
+
+  const handleLogOut = async () => {
+    try {
+      const response = await api.get("/logout");
+      if (response.data.success) {
+        toast({ title: "Logged out successfully." });
+        router.push("/login");
+      } else {
+        toast({ title: "Can't log out check network connection." });
+      }
+    } catch (error) {
+      toast({ title: "Can't log out check network connection." });
+    }
+  };
+
   return (
     <div className="w-full flex flex-col gap-y-10 justify-center items-center h-[100vh] dark:text-white dark:bg-black">
+      <div className="absolute top-3 right-5">
+        <Button onClick={handleLogOut}>Logout</Button>
+      </div>
       <header className="flex flex-col items-center">
-        <div className="flex gap-x-2 w-full justify-center text-xl">
+        <div className="flex md:flex-row flex-col gap-x-2 w-full justify-center text-xl">
           <span className="font-bold underline">
             {assingnedBusDetials.conductorName}
           </span>{" "}
@@ -98,7 +117,7 @@ const StartJourneyChoice = ({ assingnedBusDetials }: any) => {
           <Label className="text-2xl ml-2">{reverseRouteName()}</Label>
         </div>
       </div>
-      <div>
+      <div className="flex flex-col gap-y-4">
         <Button
           onClick={() => {
             handleStartJourney();
@@ -107,6 +126,13 @@ const StartJourneyChoice = ({ assingnedBusDetials }: any) => {
         >
           Strat Journey
         </Button>
+        {/* <Button
+          onClick={() => {
+            handleResumeJourney();
+          }}
+        >
+          Resume Privious Journey
+        </Button> */}
       </div>
     </div>
   );
