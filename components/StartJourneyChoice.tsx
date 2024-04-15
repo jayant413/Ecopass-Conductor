@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useToast } from "./ui/use-toast";
 import api from "@/helper/api";
 import { redirect, useRouter } from "next/navigation";
+import useSWR from "swr";
 
 interface assginedBusProps {
   _id: string;
@@ -22,14 +23,25 @@ interface assginedBusProps {
 
 const StartJourneyChoice = ({ assingnedBusDetials }: any) => {
   const [journeyRoute, setJourneyRoute] = useState<String>("");
+  const [busRoute, setBusRoute] = useState<any>([]);
+  const [resumePreviousJourney, setResumePreviousJourney] =
+    useState<boolean>(false);
   const { toast } = useToast();
   const router = useRouter();
 
   const reverseRouteName = () => {
     let sourceDest = assingnedBusDetials.routeName.split("-");
     let reversedStr = sourceDest.reverse().join("-");
-
     return reversedStr;
+  };
+
+  const fetchBusRoute = async (url: string) => {
+    const busRouteDetails: any = await api.get(url);
+    const previousJourney = assingnedBusDetials.journey[0];
+    const all_Stops = busRouteDetails.data.data.busRoute.all_stops;
+
+    setBusRoute(busRouteDetails.data.data.busRoute);
+    setResumePreviousJourney(previousJourney.length !== all_Stops.length);
   };
 
   const handleStartJourney = async () => {
@@ -53,27 +65,26 @@ const StartJourneyChoice = ({ assingnedBusDetials }: any) => {
     }
   };
 
-  const handleResumeJourney = async () => {};
+  useEffect(() => {
+    fetchBusRoute(`/get-bus-route-details/${assingnedBusDetials.busRouteID}`);
+  }, []);
 
-  const handleLogOut = async () => {
-    try {
-      const response = await api.get("/logout");
-      if (response.data.success) {
-        toast({ title: "Logged out successfully." });
-        router.push("/login");
-      } else {
-        toast({ title: "Can't log out check network connection." });
-      }
-    } catch (error) {
-      toast({ title: "Can't log out check network connection." });
+  const handleResumeJourney = async () => {
+    const previousJourney = assingnedBusDetials.journey[0];
+
+    if (previousJourney[0].stop == busRoute.source) {
+      router.push(
+        `/${assingnedBusDetials.conductorID}/${busRoute.source}/to/${busRoute.destination}`
+      );
+    } else if (previousJourney[0].stop == busRoute.destination) {
+      router.push(
+        `/${assingnedBusDetials.conductorID}/${busRoute.destination}/to/${busRoute.source}`
+      );
     }
   };
 
   return (
-    <div className="w-full flex flex-col gap-y-10 justify-center items-center h-[100vh] dark:text-white dark:bg-black">
-      <div className="absolute top-3 right-5">
-        <Button onClick={handleLogOut}>Logout</Button>
-      </div>
+    <div className="w-full flex flex-col gap-y-10 justify-center items-center h-[100%] dark:text-white dark:bg-black">
       <header className="flex flex-col items-center">
         <div className="flex md:flex-row flex-col gap-x-2 w-full justify-center text-xl">
           <span className="font-bold underline">
@@ -124,15 +135,17 @@ const StartJourneyChoice = ({ assingnedBusDetials }: any) => {
           }}
           disabled={journeyRoute.length == 0}
         >
-          Strat Journey
+          Start Journey
         </Button>
-        {/* <Button
-          onClick={() => {
-            handleResumeJourney();
-          }}
-        >
-          Resume Privious Journey
-        </Button> */}
+        {resumePreviousJourney ? (
+          <Button
+            onClick={() => {
+              handleResumeJourney();
+            }}
+          >
+            Resume Privious Journey
+          </Button>
+        ) : null}
       </div>
     </div>
   );

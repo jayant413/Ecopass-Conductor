@@ -17,7 +17,7 @@ const StartJourney = async () => {
     return <StartJourneyChoice assingnedBusDetials={assingnedBusDetials} />;
   else
     return (
-      <div className="flex h-[100vh] w-full justify-center items-center dark:text-white dark:bg-black">
+      <div className="flex h-full  w-full justify-center items-center dark:text-white dark:bg-black">
         <span className="text-xl flex flex-col">
           <span className="font-bold underline">
             {assingnedBusDetials.conductorName}

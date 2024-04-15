@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 export default async function Home() {
   const token = cookies().get("ecopass_conductor_token");
 
+  if (!token) redirect("/login");
+
   if (token) {
     const resposne = await api.get("/get-assignedBus", {
       headers: {

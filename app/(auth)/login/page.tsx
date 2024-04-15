@@ -50,6 +50,10 @@ const Login = () => {
         toast({ title: "Not Registered" });
         return;
       }
+      if (error?.response?.status === 401) {
+        toast({ title: "Invalid password" });
+        return;
+      }
       toast({ title: "Something went wrong." });
     }
   }

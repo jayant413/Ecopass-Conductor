@@ -85,7 +85,6 @@ const Journey = () => {
       const response = await api.get(
         `/check-next-stop/${source}/to/${destination}`
       );
-
       if (response.data.success) {
         router.refresh();
         mutate("/get-assignedBus");
@@ -136,6 +135,9 @@ const Journey = () => {
           {isSubmitting ? "Checking..." : "Check next stop"}
         </Button>
       )}
+      <Button onClick={() => router.push(`/${conductorId}/passenger-logs`)}>
+        Passenger logs
+      </Button>
     </div>
   );
 };
